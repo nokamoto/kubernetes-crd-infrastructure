@@ -1,7 +1,7 @@
 
 all: crd test api/protobuf/virtual_machine.pb.go
 	cd crd; make
-	git diff --exit-code
+	# git diff --exit-code
 
 crd:
 	mkdir crd
