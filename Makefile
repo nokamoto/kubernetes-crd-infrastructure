@@ -1,5 +1,5 @@
 
-all: crd api/protobuf/virtual_machine.pb.go
+all: crd test api/protobuf/virtual_machine.pb.go
 	cd crd; make
 	git diff --exit-code
 
@@ -11,3 +11,7 @@ crd:
 
 api/protobuf/virtual_machine.pb.go: api/protobuf/virtual_machine.proto
 	protoc -I api/protobuf api/protobuf/virtual_machine.proto --go_out=plugins=grpc,paths=source_relative:api/protobuf
+
+test:
+	cd api; go fmt ./...
+	cd api; go test ./...
