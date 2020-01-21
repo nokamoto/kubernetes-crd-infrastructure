@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "github.com/nokamoto/kubernetes-crd-infrastructure/api/protobuf";
+
+enum MachineType {
+    STANDARD = 0;
+    HIGHMEM = 1;
+    HIGHCPU = 2;
+}
+
+message VirtualMachine {
+    string id = 1;
+    string name = 2;
+    MachineType machine_type = 3;
+    string ip = 4;
+}
+
+service VirtualMachineService {
+    rpc Create(VirtualMachine) returns (VirtualMachine);
+    rpc Delete(VirtualMachine) returns (VirtualMachine);
+    rpc FindByName(VirtualMachine) returns (VirtualMachine);
+}
