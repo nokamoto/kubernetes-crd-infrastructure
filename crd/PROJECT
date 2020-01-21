@@ -1,0 +1,7 @@
+domain: nokamoto.github.com
+repo: github.com/nokamoto/kubernetes-crd-infrastructure/crd
+resources:
+- group: infrastructure
+  kind: VirtualMachine
+  version: v1
+version: "2"
