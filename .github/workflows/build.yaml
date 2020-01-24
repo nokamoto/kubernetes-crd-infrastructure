@@ -29,6 +29,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name:
+      - name: Make
         run: |
           make docker-build IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}

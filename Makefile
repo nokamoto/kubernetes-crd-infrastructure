@@ -1,5 +1,5 @@
 
-all: crd test api/protobuf/virtual_machine.pb.go
+all: crd test
 	cd crd; make
 	# git diff --exit-code
 
@@ -15,6 +15,10 @@ api/protobuf/virtual_machine.pb.go: api/protobuf/virtual_machine.proto
 test:
 	cd api; go fmt ./...
 	cd api; go test ./...
+
+fmt: api/protobuf/virtual_machine.pb.go
+	cd api; go fmt ./...
+	cd crd; make fmt
 
 docker-build:
 	docker build -t ${IMG} -f Dockerfile .
