@@ -15,3 +15,6 @@ api/protobuf/virtual_machine.pb.go: api/protobuf/virtual_machine.proto
 test:
 	cd api; go fmt ./...
 	cd api; go test ./...
+
+docker-build:
+	docker build -t ${IMG} -f Dockerfile .
