@@ -31,5 +31,6 @@ jobs:
 
       - name: Make
         run: |
+          echo ${DOCKERHUB_PASSWORD} | docker login --username nokamoto13 --password-stdin
           make docker-build IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}
           make docker-push IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}
