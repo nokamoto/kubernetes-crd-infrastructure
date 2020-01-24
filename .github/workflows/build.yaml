@@ -32,3 +32,4 @@ jobs:
       - name: Make
         run: |
           make docker-build IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}
+          make docker-push IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}

@@ -22,3 +22,6 @@ fmt: api/protobuf/virtual_machine.pb.go
 
 docker-build:
 	docker build -t ${IMG} -f Dockerfile .
+
+docker-push:
+	docker push ${IMG}
