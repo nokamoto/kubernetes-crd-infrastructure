@@ -25,3 +25,8 @@ docker-build:
 
 docker-push:
 	docker push ${IMG}
+
+minikube:
+	kubectl config use-context minikube
+	cd crd; make install
+	cd crd; make run

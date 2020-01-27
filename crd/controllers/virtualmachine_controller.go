@@ -17,13 +17,16 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	infrastructurev1 "github.com/nokamoto/kubernetes-crd-infrastructure/crd/api/v1"
+	infrav1 "github.com/nokamoto/kubernetes-crd-infrastructure/crd/api/v1"
+
+	pb "github.com/nokamoto/kubernetes-crd-infrastructure/api/protobuf"
 )
 
 // VirtualMachineReconciler reconciles a VirtualMachine object
@@ -31,22 +34,37 @@ type VirtualMachineReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	pb.VirtualMachineServiceClient
 }
 
 // +kubebuilder:rbac:groups=infrastructure.nokamoto.github.com,resources=virtualmachines,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=infrastructure.nokamoto.github.com,resources=virtualmachines/status,verbs=get;update;patch
 
 func (r *VirtualMachineReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("virtualmachine", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("virtualmachine", req.NamespacedName)
 
-	// your logic here
+	var virtualMachine infrav1.VirtualMachine
+	if err := r.Get(ctx, req.NamespacedName, &virtualMachine); err != nil {
+		log.Error(err, "unable to fetch CronJob")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
-	return ctrl.Result{}, nil
+	log.Info("found", "virtualMachine", virtualMachine)
+
+	now := time.Now()
+	next := 10 * time.Second
+	polling := ctrl.Result{RequeueAfter: next}
+	log.Info("polling", "now", now, "next run", next)
+
+	return polling, nil
 }
 
 func (r *VirtualMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&infrastructurev1.VirtualMachine{}).
+		For(&infrav1.VirtualMachine{}).
 		Complete(r)
 }
