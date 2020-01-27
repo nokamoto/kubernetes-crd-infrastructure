@@ -27,17 +27,25 @@ type VirtualMachineSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of VirtualMachine. Edit VirtualMachine_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Name string `json:"name"`
+
+	MachineType MachineType `json:"machineType"`
 }
+
+type MachineType string
 
 // VirtualMachineStatus defines the observed state of VirtualMachine
 type VirtualMachineStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	LastID string `json:"lastID,omitempty"`
+
+	LastIP string `json:"lastIP,omitempty"`
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // VirtualMachine is the Schema for the virtualmachines API
 type VirtualMachine struct {

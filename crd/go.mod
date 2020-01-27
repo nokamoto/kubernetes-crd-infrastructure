@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/go-logr/logr v0.1.0
+	github.com/nokamoto/kubernetes-crd-infrastructure v0.0.0-20200124052620-2b7d4c0c2c07
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
 	k8s.io/apimachinery v0.0.0-20190913080033-27d36303b655

@@ -3,5 +3,5 @@ kind: VirtualMachine
 metadata:
   name: virtualmachine-sample
 spec:
-  # Add fields here
-  foo: bar
+  name: my-first-virtual-VirtualMachine
+  machineType: standard
