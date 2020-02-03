@@ -98,7 +98,7 @@ func (r *VirtualMachineReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 }
 
 func (r *VirtualMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	cc, err := grpc.Dial("todo", grpc.WithInsecure())
+	cc, err := grpc.Dial("api.default.svc.cluster.local:9090", grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
