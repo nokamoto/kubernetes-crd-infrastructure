@@ -17,6 +17,9 @@ package controllers
 
 import (
 	"context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -34,7 +37,7 @@ type VirtualMachineReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
-	pb.VirtualMachineServiceClient
+	api    pb.VirtualMachineServiceClient
 }
 
 // +kubebuilder:rbac:groups=infrastructure.nokamoto.github.com,resources=virtualmachines,verbs=get;list;watch;create;update;patch;delete
@@ -44,9 +47,17 @@ func (r *VirtualMachineReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	ctx := context.Background()
 	log := r.Log.WithValues("virtualmachine", req.NamespacedName)
 
+	polling := func() ctrl.Result {
+		now := time.Now()
+		next := 10 * time.Second
+		res := ctrl.Result{RequeueAfter: next}
+		log.Info("polling", "now", now, "next run", next)
+		return res
+	}
+
 	var virtualMachine infrav1.VirtualMachine
 	if err := r.Get(ctx, req.NamespacedName, &virtualMachine); err != nil {
-		log.Error(err, "unable to fetch CronJob")
+		log.Error(err, "unable to fetch VirtualMachine state")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
@@ -55,15 +66,45 @@ func (r *VirtualMachineReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 	log.Info("found", "virtualMachine", virtualMachine)
 
-	now := time.Now()
-	next := 10 * time.Second
-	polling := ctrl.Result{RequeueAfter: next}
-	log.Info("polling", "now", now, "next run", next)
+	// 1. find by name
+	res, err := r.api.FindByName(ctx, &pb.VirtualMachine{
+		Name: virtualMachine.Spec.Name,
+	})
+	if status.Code(err) == codes.NotFound {
+		log.Info("create if not exists")
 
-	return polling, nil
+		typ, _ := pb.MachineType_value[string(virtualMachine.Spec.MachineType)]
+
+		res, err := r.api.Create(ctx, &pb.VirtualMachine{
+			Name:        virtualMachine.Spec.Name,
+			MachineType: pb.MachineType(typ),
+		})
+		if err != nil {
+			log.Error(err, "unable to create VirtualMachine")
+			return ctrl.Result{}, err
+		}
+
+		log.Info("create", "res", *res)
+
+		return polling(), nil
+	} else if err != nil {
+		log.Error(err, "unable to fetch VirtualMachine status")
+		return ctrl.Result{}, err
+	}
+
+	log.Info("found", "res", *res)
+
+	return polling(), nil
 }
 
 func (r *VirtualMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	cc, err := grpc.Dial("todo", grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+
+	r.api = pb.NewVirtualMachineServiceClient(cc)
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&infrav1.VirtualMachine{}).
 		Complete(r)

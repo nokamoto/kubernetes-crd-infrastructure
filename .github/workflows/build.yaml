@@ -34,5 +34,6 @@ jobs:
           echo ${DOCKERHUB_PASSWORD} | docker login --username nokamoto13 --password-stdin
           make docker-build IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}
           make docker-push IMG=nokamoto13/kubernetes-crd-infrastructure-api:${GITHUB_SHA}
+          cd crd; make docker-build docker-push IMG=nokamoto13/kubernetes-crd-infrastructure-crd-virtualmachine:${GITHUB_SHA}
         env:
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
