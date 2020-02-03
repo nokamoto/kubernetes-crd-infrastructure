@@ -29,4 +29,4 @@ docker-push:
 minikube:
 	kubectl config use-context minikube
 	cd crd; make install
-	cd crd; make run
+	cd crd; make deploy IMG=nokamoto13/kubernetes-crd-infrastructure-crd-virtualmachine:latest
